@@ -186,9 +186,23 @@ for i=1:1:size(renovation_cells_waypaths,2)
     end
 end
 
+for i=1:1:size(renovation_cells_waypaths,2)
+    num=1;
+    for j=1:1:size(renovation_cells_waypaths{i},2)
+        for m=1:1:size(renovation_cells_waypaths{i}{j},1)
+            renovation_cells_waypoints{i}(num,1:3)=renovation_cells_waypaths{i}{j}(m,1:3);
+            num=num+1;
+            renovation_cells_waypoints{i}(num,1:3)=renovation_cells_waypaths{i}{j}(m,4:6);
+            num=num+1;
+        end
+    end
+end
 
-save('second_scan_data/second_scan_data3.mat','renovation_cells_waypaths','renovation_waypaths_orientation','renovation_cells_mobilebase_positions');
-renovation_cells_waypath_visualization(renovation_cells_waypaths,renovation_cells_mobilebase_positions,renovation_plane_edge_cell,room_plane_edge_cell);
+
+save('second_scan_data/second_scan_data3.mat','renovation_cells_waypaths','renovation_waypaths_orientation','renovation_cells_waypoints','renovation_cells_mobilebase_positions');
+
+
+% renovation_cells_waypath_visualization(renovation_cells_waypaths,renovation_cells_mobilebase_positions,renovation_plane_edge_cell,room_plane_edge_cell);
 
 
 

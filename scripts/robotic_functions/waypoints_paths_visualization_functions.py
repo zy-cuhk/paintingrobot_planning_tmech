@@ -27,36 +27,6 @@ def path1_visualization(waypoints,frame,num1):
         # marker2.points.append(pathpoints)
     return marker1,num1
 
-def path2_visualization(waypoints,frame,num1):
-    marker1 = Marker()
-    marker1.header.frame_id = frame
-    marker1.type = Marker.LINE_STRIP
-    marker1.action = Marker.ADD
-    marker1.pose.orientation.w = 1.0
-    marker1.scale.x = 0.02
-    marker1.ns = 'paths'
-    marker1.id = num1
-    marker1.color.r = 0.8
-    marker1.color.g = 0.1
-    marker1.color.b = 0.1
-    marker1.color.a = 1.0
-    marker1.lifetime = rospy.Duration()
-
-    pathpoints1=Point()
-    pathpoints1.x = waypoints[0]
-    pathpoints1.y = waypoints[1]
-    pathpoints1.z = waypoints[2]
-    marker1.points.append(pathpoints1)
-
-    pathpoints2 = Point()
-    pathpoints2.x = waypoints[3]
-    pathpoints2.y = waypoints[4]
-    pathpoints2.z = waypoints[5]
-    marker1.points.append(pathpoints2)
-
-    return marker1, num1
-
-
 def targetpositions_visualization(waypoint, frame, num, scale, color):
     marker1 = Marker()
     marker1.header.frame_id = frame

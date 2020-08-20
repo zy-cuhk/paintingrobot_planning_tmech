@@ -8,8 +8,8 @@ path_interval=painting_path_interval;
 length_interval=cell_length;
 path_distance=path_interval;
 
-manipulatorbase_plane_edge_cell;
-renovation_plane_norm_vector;
+% manipulatorbase_plane_edge_cell;
+% renovation_plane_norm_vector;
 for i=1:1:size(renovation_plane_norm_vector,2)
     a=renovation_plane_norm_vector{i}(1,1);
     b=renovation_plane_norm_vector{i}(1,2);
@@ -53,21 +53,13 @@ for i=1:1:size(renovation_plane_edge_cell,2)
     end
     renovation_planes_edge_points{i}=unique(renovation_planes_edge_points{i},'rows');
 end
-
-for i=1:1:size(renovation_planes_edge_points,2)
-    a=renovation_plane_norm_vector{i}(1,1);
-    b=renovation_plane_norm_vector{i}(1,2);
-    a1=intersect_plane_norm_vector1(i,1);
-    b1=intersect_plane_norm_vector1(i,2);
-    intersect_plane_norm_vector(i,1:3)=intersect_plane_norm_vector1(i,1:3);
-    
+for i=1:1:size(renovation_planes_edge_points,2)    
     for j=1:1:size(renovation_planes_edge_points{i},1)
-        intersect_plane_d_candidate{i}(1,j)=-intersect_plane_norm_vector(i,1:3)*renovation_planes_edge_points{i}(j,1:3)';
+        intersect_plane_d_candidate{i}(1,j)=-intersect_plane_norm_vector1(i,1:3)*renovation_planes_edge_points{i}(j,1:3)';
     end
     intersect_plane_dmin_max{i}(1,1)=min(intersect_plane_d_candidate{i});
     intersect_plane_dmin_max{i}(1,2)=max(intersect_plane_d_candidate{i});
 end
-
 for i=1:1:size(intersect_plane_dmin_max,2)
     dmin=intersect_plane_dmin_max{i}(1,1);
     dmax=intersect_plane_dmin_max{i}(1,2);
@@ -76,10 +68,6 @@ for i=1:1:size(intersect_plane_dmin_max,2)
         intersect_plane_d{i}(1,j)=dmin+j*length_interval;
     end
 end
-
-
-
-%% gather renovation cells edges into renovation cells, the output is:renovation_cells_waypaths
 for i=1:1:size(intersect_plane_d,2)
     cell_num=1;
     h_num=size(intersect_plane_d{i},2)+1;
@@ -117,6 +105,23 @@ for i=1:1:size(intersect_plane_d,2)
     end
 end
 
+%% 
+for i=1:1:size(renovation_cells_waypaths,2)
+    for j=1:1:size(renovation_cells_waypaths{i},2)
+        a1=renovation_manipulatorbase_planes{i}(1,1);
+        b1=renovation_manipulatorbase_planes{i}(1,2);
+        c1=renovation_manipulatorbase_planes{i}(1,3);
+        
+        a2=intersect_plane_norm_vector1(i,1);
+        b2=intersect_plane_norm_vector1(i,2);
+        dmin=intersect_plane_dmin_max{i}(1,1);
+        c2=dmin+(j-0.5)*length_interval;
+        
+        renovation_horizontalcells_mobilebase_points{i}(j,1)=(c2*b1-c1*b2)/(a1*b2-a2*b1);
+        renovation_horizontalcells_mobilebase_points{i}(j,2)=(c1*a2-c2*a1)/(a1*b2-a2*b1);
+        renovation_horizontalcells_mobilebase_points{i}(j,3)=0;
+    end
+end
 
 %% add orientations into renovation path waypoints
 theta_x=-pi/2;
@@ -142,32 +147,6 @@ for i=1:1:size(renovation_plane_norm_vector,2)
     end
     renovation_waypaths_orientation{i}(1,1:3)=[theta_x,theta_y(i),theta_z];
 end
-
-%% 
-for i=1:1:size(renovation_cells_waypaths,2)
-    for j=1:1:size(renovation_cells_waypaths{i},2)
-        intersection_line{i}(j,1)=renovation_plane_norm_vector{i}(1,1);
-        intersection_line{i}(j,2)=renovation_plane_norm_vector{i}(1,2);
-        dmin=intersect_plane_dmin_max{i}(1,1);
-        intersection_line{i}(j,3)=dmin+(j-0.5)*length_interval;
-    end
-end
-
-for i=1:1:size(intersection_line,2)
-    for j=1:1:size(intersection_line{i},1)
-        a1=intersection_line{i}(j,1);
-        b1=intersection_line{i}(j,2);
-        c1=intersection_line{i}(j,3);
-        a2=intersect_plane_norm_vector1(i,1);
-        b2=intersect_plane_norm_vector1(i,2);
-        c2=intersect_plane_norm_vector1(i,3);
-        
-        renovation_horizontalcells_mobilebase_points{i}(j,1)=(c2*b1-c1*b2)/(a1*b2-a2*b1);
-        renovation_horizontalcells_mobilebase_points{i}(j,2)=(c1*a2-c2*a1)/(a1*b2-a2*b1);
-        renovation_horizontalcells_mobilebase_points{i}(j,3)=0;
-    end
-end
-
 for i=1:1:size(renovation_plane_norm_vector,2)
     nx=renovation_plane_norm_vector{i}(1,1);
     ny=renovation_plane_norm_vector{i}(1,2);
@@ -175,6 +154,8 @@ for i=1:1:size(renovation_plane_norm_vector,2)
     base_theta_z(i)=atan2(ny,nx);
 end 
 
+
+%% gather the above data together
 for i=1:1:size(renovation_cells_waypaths,2)
     for j=1:1:size(renovation_cells_waypaths{i},2)
         renovation_cells_mobilebase_positions{i}(j,1)=renovation_horizontalcells_mobilebase_points{i}(j,1);

@@ -199,10 +199,10 @@ for i=1:1:size(renovation_cells_waypaths,2)
 end
 
 
-save('second_scan_data/second_scan_data3.mat','renovation_cells_waypaths','renovation_waypaths_orientation','renovation_cells_waypoints','renovation_cells_mobilebase_positions');
+% save('second_scan_data/second_scan_data3.mat','renovation_cells_waypaths','renovation_waypaths_orientation','renovation_cells_waypoints','renovation_cells_mobilebase_positions');
 
 
-% renovation_cells_waypath_visualization(renovation_cells_waypaths,renovation_cells_mobilebase_positions,renovation_plane_edge_cell,room_plane_edge_cell);
+renovation_cells_waypath_visualization(renovation_cells_waypaths,renovation_cells_mobilebase_positions,renovation_plane_edge_cell,room_plane_edge_cell);
 
 
 

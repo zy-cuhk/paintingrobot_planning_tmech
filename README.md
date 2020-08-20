@@ -19,5 +19,25 @@ the visualization is:
 1. painting_globalpaths_visualization.py
 2. painting_mobileplatform_cells_visualization.py
 
+targets list is shown as follows:
+1. write mobileplatform_planner.py
+2. write climbing_mechanism_and_manipulator_planner.py
+3. modify painting_mobileplatform_cells_visualization.py
+
+algorithm: a novel rtsp algorithm 
+input: renovation_cell_waypaths, renovation_cell_mobileplatform_positions
+output: climbing_mechanism and manipulator_joints   
+
+
+
+
+
+
+
+
+
+
+
+
 
 

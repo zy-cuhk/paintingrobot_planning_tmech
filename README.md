@@ -16,11 +16,8 @@ coverage_planning_offline_farubim.py
 2. the visualization file can be modified for the visualization of rod climbing mechanism
 
 the visualization is:
-
-1. 
-
-
-
+1. painting_globalpaths_visualization.py
+2. painting_mobileplatform_cells_visualization.py
 
 
 

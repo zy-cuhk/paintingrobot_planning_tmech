@@ -8,6 +8,7 @@ import scipy.io as io
 from std_msgs.msg import String,Float64,Bool
 from sensor_msgs.msg import JointState
 import json
+import time 
 
 path=os.getcwd()
 sys.path.append(path)
@@ -152,14 +153,19 @@ class Renovation_BIM_Model_Opreating():
 
 
 def main():
-    mat_path="/home/zy/catkin_ws/src/paintingrobot_related/paintingrobot_underusing/paintingrobot_planning_tmech/matlab/second_scan_data/second_scan_data2.mat"
+    time1=time.time()
+    mat_path="/home/zy/catkin_ws/src/paintingrobot_related/paintingrobot_underusing/painting_robot_demo/matlab/second_scan_data/second_scan_data2.mat"
     parameterx=0.430725381079
     parametery=-0.00033063639818
     parameterz=0.028625
     interval=0.10
     data = io.loadmat(mat_path)
     Paintrobot2 = Renovation_BIM_Model_Opreating(mat_path,parameterx,parametery,parameterz,interval)
-    Paintrobot2.show_mat()
+    planning_source_dict=Paintrobot2.get_mat_data_json1()
+    time2=time.time()
+    process_time=time2-time1
+    print("the process time is:",process_time)
+
 
 if __name__ == "__main__":
     main()

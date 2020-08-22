@@ -3,6 +3,8 @@
 from math import *
 import numpy as np
 import Quaternion as Q
+import time 
+import numpy.matlib
 
 """
 a2 = 0.266;
@@ -169,6 +171,7 @@ class Aubo_kinematics():
         return T
 
     def aubo_inverse(self, T):
+        # print("T is: ",T)
         q_reslut_dic = {}
         q_reslut = []
         singularity = False
@@ -194,9 +197,9 @@ class Aubo_kinematics():
         A1 = self.d6 * ay - py
         B1 = self.d6 * ax - px
         R1 = A1 * A1 + B1 * B1 - self.d2 * self.d2
-
+        # print("r1 is:", R1)
         if R1 < 0.0:
-            return num_sols
+            return [], num_sols
         else:
             R12 = sqrt(R1)
             q1[0] = self.antiSinCos(A1, B1) - self.antiSinCos(self.d2, R12)
@@ -378,40 +381,45 @@ class Aubo_kinematics():
                     q_sols_selected.update({num: q_sols[i]})
                     num += 1
 
-        num_sols = num;
+        num_sols = num
 
         if (num > 0):
             return True, q_sols_selected
         else:
             return False, {}
 
+    def GetInverseResult_withoutref(self, T_target):
+        num_sols = 0
+        maxq = 175.0 / 180.0 * pi
+        AngleLimit = [(-maxq, maxq), (-maxq, maxq), (-maxq, maxq), (-maxq, maxq), (-maxq, maxq), (-maxq, maxq)]
+        # print("T_target is:",T_target)
+        q_sols_all, num_sols = self.aubo_inverse(T_target)
+        if (len(q_sols_all) != 0):
+            ret2, q_sols_inlimit = self.selectIK(q_sols_all, AngleLimit)
+            if ((len(q_sols_inlimit) != 0) and (True == ret2)):
+                return True, q_sols_inlimit
+            else:
+                return False, []
+        else:
+            return False, []
+
     def GetInverseResult(self, T_target, q_ref):
         num_sols = 0
         maxq = 175.0 / 180.0 * pi
         AngleLimit = [(-maxq, maxq), (-maxq, maxq), (-maxq, maxq), (-maxq, maxq), (-maxq, maxq), (-maxq, maxq)]
-        # inverse and remove zero list
         q_sols_all, num_sols = self.aubo_inverse(T_target)
         if (len(q_sols_all) != 0):
-            for i in q_sols_all:
-                pass
-                # print("num:" + str(i) + ' ' + "sols", q_sols_all[i])
-            # remove not in limited data
             ret2, q_sols_inlimit = self.selectIK(q_sols_all, AngleLimit)
-            # print "q_sols_inlimit",q_sols_inlimit
             if ((len(q_sols_inlimit) != 0) and (True == ret2)):
                 ret3, q_result = self.chooseIKonRefJoint(q_sols_inlimit, q_ref)
                 if (True == ret3):
-
-                    # print(" find solution choose  ")
-                    return q_result
+                    return True, q_result
                 else:
-                    print(" No solution choose  ")
+                    return False, []
             else:
-                print("no valid sols ")
+                return False, []
         else:
-            print("inverse result num is 0")
-            # return False
-
+            return False, []
 class pose2mat():
     def __init__(self):
         self.a=3
@@ -456,81 +464,71 @@ class pose2mat():
         return r
     def tran2tr(self,p):
         T = np.matlib.identity(4, dtype=float)
+        # T=np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
         T[0:3, 3] = np.array(p).reshape((3, 1))
         return T
-    def mat4x4(self,p,q):
+    def Tmat(self,p,q):
+        T = np.matlib.identity(4, dtype=float)
+        # T=np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
+        # print(T[0:3, 0:3])
+        # print(T[0:3, 3])
+        rot = self.rpy2r(q)
+        tran = self.tran2r(p)
+        # print(tran)
+        T[0:3, 0:3] = rot
+        T[0:3, 3] = tran
+        return T
+
+    def Tmat2list(self,p,q):
         T = np.matlib.identity(4, dtype=float)
         rot = self.rpy2r(q)
         tran = self.tran2r(p)
         T[0:3, 0:3] = rot
         T[0:3, 3] = tran
-        return T
+
+        t2=T.tolist()
+        t3=[]
+        for i in range(len(t2)):
+            for j in range(len(t2[0])):
+                t3.append(t2[i][j])
+        # print(t3)
+        return t3
 
 def main():
+    time1=time.time()
     ak47 = Aubo_kinematics()
-    # print ak47.aubo_forward([-3.3364,12.406,-81.09,-91.207,-86.08,0.164])
-    # print numpy.matrix(ak47.aubo_forward([-3.3364,12.406,-81.09,-91.207,-86.08,0.164])).reshape((4,4))
+    # tt = [0.010016939985065143, -0.039901099098502056, -0.9991534232559417, -0.56724776,
+    #       -0.999934201568705, 0.005186605233011846, -0.010231894219208601, -0.09507448660946277,
+    #       0.005590478198847001, 0.999190172798396, -0.039846519755429126, 0.5962177031402299,
+    #       0, 0, 0, 1]
+    tt = [6.123233995736766e-17, 0.0, 1.0, 0.16927461892100007, 
+        0.0, 1.0, 0.0, 0.050330636398179404, 
+        -1.0, 0.0, 6.123233995736766e-17, 1.2995244394938152, 
+        0.0, 0.0, 0.0, 1.0]
+    Flag, q_dict = ak47.GetInverseResult(tt,ak47.degree_to_rad([-3.3364, 12.406, -81.09, -91.207, -86.08, 0.164]))
+    if Flag==True:
+        for i in range(len(q_dict)):
+            q_dict[i] = q_dict[i] * 180 / pi
+        print q_dict
+    Flag, q_dict = ak47.GetInverseResult_withoutref(tt)
+    if Flag==True:
+        for i in range(len(q_dict)):
+            for j in range(len(q_dict[i])):
+                q_dict[i][j] = q_dict[i][j] * 180 / pi
+            print q_dict[i]
 
-    tt = [0.010016939985065143, -0.039901099098502056, -0.9991534232559417, -0.56724776,
-          -0.999934201568705, 0.005186605233011846, -0.010231894219208601, -0.09507448660946277,
-          0.005590478198847001, 0.999190172798396, -0.039846519755429126, 0.5962177031402299,
-          0, 0, 0, 1]
-    q_dict = ak47.GetInverseResult(tt,ak47.degree_to_rad([-3.3364, 12.406, -81.09, -91.207, -86.08, 0.164]))
-    for i in range(len(q_dict)):
-        q_dict[i] = q_dict[i] * 180 / pi
-    # print q_dict
+    # xyz=[1,1,1]
+    # rpy1=[0,pi/2,0]
+    # mat_computation=pose2mat()
+    # T1=mat_computation.mat4x4(xyz,rpy1)
+    # print(T1)
 
-    # tt=[1.0, 0.0, 0.0, -0.4, 0.0, -1.0, -0.0, -0.8500000000000001, 0.0, 0.0, -1.0, -0.4, 0.0, 0.0, 0.0, 1.0]
-    # tt=[1.0, 0.0, 0.0, -0.4, 0.0, -1.0, -0.0, -0.4500000000000001, 0.0, 0.0, -1.0, -0.4, 0.0, 0.0, 0.0, 1.0]
-    # q_dict,num=ak47.aubo_inverse(tt)
-    # print q_dict,num
-    # for i in range(len(q_dict)):
-    #     print i,q_dict[i]
-    # print ak47.degree_to_rad([-3.3364,12.406,-81.09,-91.207,-86.08,0.164])
 
-    tt =[6.123233995736766e-17, 0.0, 1.0, 0.6, 0.0, 1.0, 0.0, 0.3, -1.0, 0.0, 6.123233995736766e-17, 0.2, 0.0, 0.0, 0.0, 1.0]
+    # time2=time.time()
+    # delta_time=time2-time1
+    # print("the delta_time is:",delta_time)
 
-    tt=[2.58819045e-01, -1.66533454e-16, -9.65925826e-01,5.50000000e-01,1.11022302e-16,  1.00000000e+00, -1.66533454e-16, 2.25000000e-01, 9.65925826e-01, -8.32667268e-17, 2.58819045e-01, -3.00000000e-01, 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,1.00000000e+00]
-    aubo_joints=ak47.GetInverseResult(tt, ak47.degree_to_rad([42.583065044150764, -110.38508835871683, -79.4807744023249, 30.904313956391917, -47.416934955849236, 90.0]))
-    for i in range(len(aubo_joints)):
-        aubo_joints[i] = aubo_joints[i] * 180 / pi
-    print(aubo_joints)
-    mat_T1 = ak47.aubo_forward(aubo_joints)
-    # print(mat_T1)
-    mat_T2=np.array(mat_T1).reshape(4,4)
-    # print mat_T2[0][3],mat_T2[1][3],mat_T2[2][3]
 
-    joint1=np.array([0,pi/2,0])
-    rotation=pose2mat()
-    rot=rotation.rpy2r(joint1)
-    # print(rot[0,0])
-    # joint2=Q.quaternion(rot)
-    # print("joints=:",joint2)
-
-    # aubo_joints1=[29.653148422626067, -95.65283184880397, -57.558231846310115, 20.958547515507814, -118.5476898610727, 171.6179296859307]
-    # aubo_joints1=([2.4858068789660575, 1.815349576573178, 1.482442121812757, -0.6589210299089654, -0.9409700361460969, 0.1965576444919961])
-    aubo_joints1=([0.6557857746237357, -0.19867221763173237, 1.2366098604452205, -1.3802970003642958, -0.9409700361460969, 2.945035009097797])
-    for i in range(len(aubo_joints1)):
-        aubo_joints1[i] = aubo_joints1[i] * 180 / pi
-
-    # up
-    aubo_joints1=[39.848846824445964, -12.836784917343492, 69.11483610926703, -78.8088065326364, -51.76189212327183, 77.81060105964025]
-    # middle 
-    aubo_joints1=[37.57375715065746, -11.383079576802844, 70.85252590777291, -79.0851925954415, -53.913611719443864, -11.261923460424228-90]
-    # down
-    aubo_joints1=[37.57375715065746, -11.383079576802844, 70.85252590777291, -79.0851925954415, -53.913611719443864, -101.26192346042423]
-
-    for i in range(len(aubo_joints1)):
-        aubo_joints1[i]=aubo_joints1[i]
-
-    aubo_joints1=([0.67586845, -2.07609532,  0.52292338, -0.54257395, -0.89492788,-1.57079633])
-    for i in range(len(aubo_joints1)):
-        aubo_joints1[i] = aubo_joints1[i] * 180 / pi
-
-    # print("aubo_joints1 is:",aubo_joints1)
-    mat_T3=ak47.aubo_forward(aubo_joints1)
-    mat_T4=np.array(mat_T3).reshape(4,4)
-    print("mat_T4 is:",mat_T4)
     
 
 

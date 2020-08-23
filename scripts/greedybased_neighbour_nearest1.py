@@ -6,17 +6,14 @@ def length(point1, point2):
     return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2 + (point1[2] - point2[2]) ** 2)
 
 
-def solve_it(points):
-    # the inputs are:
+def solve1(points):
     nodeCount=len(points)
-    # greedy algorithm
-    flag = [0] * nodeCount  # noted the node
+    flag = [0] * nodeCount
     flag[0] = 1
     solution = [0] * nodeCount
     obj = 0
     i = 0
     index = 0
-    #
     while i < nodeCount-1:
         dis_min = float("inf")
         for j in range(0, nodeCount):
@@ -33,15 +30,16 @@ def solve_it(points):
     obj += length(points[0], points[index])
     output_data = '%.2f' % obj + '\n'
     output_data += ' '.join(map(str, solution))
-
     return output_data
 
+def solve2(point1, )
+
+
+
 def main():
-    # input: waypoints
     points_list=np.array([[2066, 2333, 0],[935, 1304, 0], [1270, 200, 0],[1389, 700, 0]])
     print("the points list is:",points_list)
-    # output: waypoints list with order
-    output_data=solve_it(points_list)
+    output_data=solve1(points_list)
     print(output_data)
 
 

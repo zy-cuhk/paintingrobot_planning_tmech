@@ -114,17 +114,24 @@ if __name__ == "__main__":
                                 
                                 if flag1==True or flag2==True:
                                     flag_point = 1
-                                    for i in range(len(q_dict1)+len(q_dict2)):
-                                        q_dict
+                                    # for i in range(len(q_dict1)+len(q_dict2)):
+                                    #    q_dict=[]
                                 else:
                                     flag_point = 0
                                     q_dict=[]
-
                                 flag[k] = flag[k]&flag_point
-                            
                 print("the coverage number is:",int(sum(flag)))
 
-            ## using cartesian space tsp solver to schedule these suitable waypaths 
+            ## using cartesian space tsp solver to schedule these suitable waypaths
+            renovation_waypaths_onecell = renovation_cells_waypaths[0][i][0][j]
+            print(len(renovation_waypaths_onecell))
+            
+
+
+
+
+
+
 
 
             ## using joint space tsp solver to obtain suitable joints value of scheduled waypaths 

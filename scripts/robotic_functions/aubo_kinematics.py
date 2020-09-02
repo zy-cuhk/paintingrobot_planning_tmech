@@ -501,35 +501,56 @@ def main():
     #       -0.999934201568705, 0.005186605233011846, -0.010231894219208601, -0.09507448660946277,
     #       0.005590478198847001, 0.999190172798396, -0.039846519755429126, 0.5962177031402299,
     #       0, 0, 0, 1]
-    tt = [6.123233995736766e-17, 0.0, 1.0, 0.16927461892100007, 
-        0.0, 1.0, 0.0, 0.050330636398179404, 
-        -1.0, 0.0, 6.123233995736766e-17, 1.2995244394938152, 
+    # tt = [6.123233995736766e-17, 0.0, 1.0, 0.16927461892100007, 
+    #     0.0, 1.0, 0.0, 0.050330636398179404, 
+    #     -1.0, 0.0, 6.123233995736766e-17, 1.2995244394938152, 
+    #     0.0, 0.0, 0.0, 1.0]
+    # Flag, q_dict = ak47.GetInverseResult(tt,ak47.degree_to_rad([-3.3364, 12.406, -81.09, -91.207, -86.08, 0.164]))
+    # if Flag==True:
+    #     for i in range(len(q_dict)):
+    #         q_dict[i] = q_dict[i] * 180 / pi
+    #     print q_dict
+
+    aubo_ref=np.array([0.0,-0.24435,2.7524,-0.3,-1.4835,-1.57])
+    print("aubo_ref is:",aubo_ref)
+
+    aubo_joints_list_1=np.array([37.57375715065746, -11.383079576802844, 70.85252590777286, -79.0851925954416, -53.913611719443864, 168.73807653957576-90.0])
+    aubo_joints_list_2=np.array([37.57375715065746, -11.383079576802844, 70.85252590777286, -79.0851925954416, -53.913611719443864, 168.73807653957576-270.0])
+    for i in range(len(aubo_joints_list_1)):
+        aubo_joints_list_1[i]=aubo_joints_list_1[i]*pi/180
+        aubo_joints_list_2[i]=aubo_joints_list_2[i]*pi/180
+    print("aubo_joints_list_1 is:",aubo_joints_list_1)
+    print("aubo_joints_list_2 is:",aubo_joints_list_2)
+
+    tt= [-6.123233995736766e-17, -7.498798913309288e-33, 1.0, 0.5992746189210001, 
+        1.2246467991473532e-16, -1.0, 0.0, -0.19966936360182042, 
+        1.0, 1.2246467991473532e-16, 6.123233995736766e-17, -0.5499755605061848, 
         0.0, 0.0, 0.0, 1.0]
-    Flag, q_dict = ak47.GetInverseResult(tt,ak47.degree_to_rad([-3.3364, 12.406, -81.09, -91.207, -86.08, 0.164]))
-    if Flag==True:
-        for i in range(len(q_dict)):
-            q_dict[i] = q_dict[i] * 180 / pi
-        print q_dict
+    print("the lower joints are:")
     Flag, q_dict = ak47.GetInverseResult_withoutref(tt)
     if Flag==True:
         for i in range(len(q_dict)):
             for j in range(len(q_dict[i])):
-                q_dict[i][j] = q_dict[i][j] * 180 / pi
+                q_dict[i][j] = q_dict[i][j] 
             print q_dict[i]
 
-    # xyz=[1,1,1]
-    # rpy1=[0,pi/2,0]
-    # mat_computation=pose2mat()
-    # T1=mat_computation.mat4x4(xyz,rpy1)
-    # print(T1)
+    tt= [6.123233995736766e-17, 0.0, 1.0, 0.5992746189210002,
+         0.0, 1.0, 0.0, 0.20033063639817963, 
+        -1.0, 0.0, 6.123233995736766e-17, 0.7800244394938151, 
+         0.0, 0.0, 0.0, 1.0]
+    print("the upper joints are: ")
+    Flag, q_dict = ak47.GetInverseResult_withoutref(tt)
+    if Flag==True:
+        for i in range(len(q_dict)):
+            for j in range(len(q_dict[i])):
+                q_dict[i][j] = q_dict[i][j] 
+            print q_dict[i]
 
 
     # time2=time.time()
     # delta_time=time2-time1
     # print("the delta_time is:",delta_time)
-
-
-    
+    # [-0.15079321322034112, -2.514937015882663, -0.2553115016596337, -0.8819671393667647, -1.7215895400152377, -1.5707963267948966]
 
 
 if __name__ == "__main__":

@@ -27,3 +27,10 @@
     # 5. based on step 3 and step 4, the joint list is computed.
     # the painting cost is the motion cost 
     # the painting award is the net painting area 
+
+# the reference website is:
+https://blog.csdn.net/Bobsweetie/article/details/70912036
+
+https://blog.csdn.net/u013834525/article/details/80447931
+
+https://blog.csdn.net/yaked/article/details/52996509

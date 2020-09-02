@@ -1,16 +1,18 @@
-function renovation_cells_waypath_visualization(renovation_cells_waypaths,renovation_cells_mobilebase_positions,renovation_plane_edge_cell,room_plane_edge_cell)
+function renovation_cells_waypath_visualization(renovation_cells_waypaths,renovation_cells_mobilebase_positions,renovation_cells_manipulatorbase_positions,renovation_plane_edge_cell,room_plane_edge_cell)
 
 %% drawing all data
 figure;
 
-% for i=1:1:size(renovation_cells_waypaths,2)
-%     for j=1:1:size(renovation_cells_waypaths{i},2)
-%         for m=1:1:size(renovation_cells_waypaths{i}{j},1)-1
-%             xlist=[renovation_cells_waypaths{i}{j}(m,1),renovation_cells_waypaths{i}{j}(m,4)];
-%             ylist=[renovation_cells_waypaths{i}{j}(m,2),renovation_cells_waypaths{i}{j}(m,5)];
-%             zlist=[renovation_cells_waypaths{i}{j}(m,3),renovation_cells_waypaths{i}{j}(m,6)];
-%             plot3(xlist,ylist,zlist,'b','LineWidth',1);
-%             hold on;
+for i=1:1:size(renovation_cells_waypaths,2)
+    for j=1:1:size(renovation_cells_waypaths{i},2)
+% for i=2:1:2
+%     for j=1:1:1
+        for m=1:1:size(renovation_cells_waypaths{i}{j},1)-1
+            xlist=[renovation_cells_waypaths{i}{j}(m,1),renovation_cells_waypaths{i}{j}(m,4)];
+            ylist=[renovation_cells_waypaths{i}{j}(m,2),renovation_cells_waypaths{i}{j}(m,5)];
+            zlist=[renovation_cells_waypaths{i}{j}(m,3),renovation_cells_waypaths{i}{j}(m,6)];
+            plot3(xlist,ylist,zlist,'b','LineWidth',1);
+            hold on;
 %             x1=renovation_cells_waypaths{i}{j}(m,1);
 %             y1=renovation_cells_waypaths{i}{j}(m,2);
 %             z1=renovation_cells_waypaths{i}{j}(m,3);
@@ -20,10 +22,10 @@ figure;
 %             z2=renovation_cells_waypaths{i}{j}(m,6);
 %             scatter3(x2,y2,z2);
 %             hold on;
-%         end
-%         axis equal;
-%     end
-% end
+        end
+        axis equal;
+    end
+end
 
 % for i=1:1:size(renovation_cells_waypaths,2)
 %     num=1;
@@ -46,6 +48,13 @@ for i=1:1:size(renovation_cells_mobilebase_positions,2)
     point_x=renovation_cells_mobilebase_positions{i}(:,1);
     point_y=renovation_cells_mobilebase_positions{i}(:,2);
     point_z=renovation_cells_mobilebase_positions{i}(:,3);
+    scatter3(point_x,point_y,point_z);
+    hold on;
+end
+for i=1:1:size(renovation_cells_manipulatorbase_positions,2)
+    point_x=renovation_cells_manipulatorbase_positions{i}(:,1);
+    point_y=renovation_cells_manipulatorbase_positions{i}(:,2);
+    point_z=renovation_cells_manipulatorbase_positions{i}(:,3);
     scatter3(point_x,point_y,point_z);
     hold on;
 end

@@ -91,29 +91,33 @@ for i=1:1:size(intersect_plane_d,2)
             p2=renovation_effective_waypaths{i}(n,4:6);
             p2_d1=-intersect_plane_norm_vector(i,1:3)*p2';
             flag1=0;
+            flag_1=0;
             if j==1
-                if p1_d1<=intersect_plane_d{i}(1,j) && p2_d1<=intersect_plane_d{i}(1,j)
+                if p1_d1<=intersect_plane_d{i}(1,j)-0.01 && p2_d1<=intersect_plane_d{i}(1,j)-0.01
                     flag1=1;
+                    flag_1=1;
                 end
             end
             if j~=size(intersect_plane_d{i},2)+1
                 if j~=1
                     if p1_d1>=intersect_plane_d{i}(1,j-1)-0.01 && p1_d1<=intersect_plane_d{i}(1,j)+0.01 && p2_d1>=intersect_plane_d{i}(1,j-1)-0.01 && p2_d1<=intersect_plane_d{i}(1,j)+0.01
                         flag1=1;
+                        flag_1=2;
                     end
                 end
             end
             if j==size(intersect_plane_d{i},2)+1
-                if p1_d1>=intersect_plane_d{i}(1,j-1) && p2_d1>=intersect_plane_d{i}(1,j-1)
+                if p1_d1>=intersect_plane_d{i}(1,j-1)+0.01 && p2_d1>=intersect_plane_d{i}(1,j-1)+0.01
                     flag1=1;
+                    flag_1=2;
                 end
             end
             if flag1==1
                 renovation_cells_waypaths{i}{j}(renovation_cells_edges_num,1:6)=renovation_effective_waypaths{i}(n,1:6);
                 renovation_cells_edges_num=renovation_cells_edges_num+1;
             end
+            
         end
-        
     end
 end
 
@@ -189,23 +193,46 @@ for i=1:1:size(renovation_cells_waypaths,2)
     end
 end
 
+% for i=1:1:size(renovation_cells_waypaths,2)
+%     num=1;
+%     for j=1:1:size(renovation_cells_waypaths{i},2)
+%         for m=1:1:size(renovation_cells_waypaths{i}{j},1)
+%             renovation_cells_waypoints{i}(num,1:3)=renovation_cells_waypaths{i}{j}(m,1:3);
+%             num=num+1;
+%             renovation_cells_waypoints{i}(num,1:3)=renovation_cells_waypaths{i}{j}(m,4:6);
+%             num=num+1;
+%         end
+%     end
+% end
+
+%% obtain waypaths positions in the original manipulator base frame 
+parameterx=0.430725381079;
+parametery=-0.00033063639818;
 for i=1:1:size(renovation_cells_waypaths,2)
-    num=1;
     for j=1:1:size(renovation_cells_waypaths{i},2)
-        for m=1:1:size(renovation_cells_waypaths{i}{j},1)
-            renovation_cells_waypoints{i}(num,1:3)=renovation_cells_waypaths{i}{j}(m,1:3);
-            num=num+1;
-            renovation_cells_waypoints{i}(num,1:3)=renovation_cells_waypaths{i}{j}(m,4:6);
-            num=num+1;
+        for k=1:1:size(renovation_cells_waypaths{i}{j},1)
+            waypoint1=renovation_cells_waypaths{i}{j}(k,1:3);
+            waypoint2=renovation_cells_waypaths{i}{j}(k,4:6);
+            
+            theta_z=renovation_cells_mobilebase_positions{i}(j,6);
+            deltax=parameterx*cos(theta_z)-parametery*sin(theta_z);
+            deltay=parameterx*sin(theta_z)+parametery*cos(theta_z);
+            
+            renovation_cells_manipulatorbase_positions{i}(j,1)=renovation_cells_mobilebase_positions{i}(j,1)+deltax;
+            renovation_cells_manipulatorbase_positions{i}(j,2)=renovation_cells_mobilebase_positions{i}(j,2)+deltay;
+            renovation_cells_manipulatorbase_positions{i}(j,3)=1.3;
+            renovation_cells_manipulatorbase_positions{i}(j,4)=0;
+            renovation_cells_manipulatorbase_positions{i}(j,5)=0;
+            renovation_cells_manipulatorbase_positions{i}(j,6)=theta_z;
         end
     end
 end
 
 
-save('second_scan_data/second_scan_data3.mat','renovation_cells_waypaths','renovation_waypaths_orientation','renovation_cells_waypoints','renovation_cells_mobilebase_positions');
+save('second_scan_data/second_scan_data3.mat','renovation_cells_waypaths','renovation_cells_mobilebase_positions','renovation_waypaths_orientation');
 
 
-renovation_cells_waypath_visualization(renovation_cells_waypaths,renovation_cells_mobilebase_positions,renovation_plane_edge_cell,room_plane_edge_cell);
+renovation_cells_waypath_visualization(renovation_cells_waypaths,renovation_cells_mobilebase_positions, renovation_cells_manipulatorbase_positions,renovation_plane_edge_cell,room_plane_edge_cell);
 
 
 

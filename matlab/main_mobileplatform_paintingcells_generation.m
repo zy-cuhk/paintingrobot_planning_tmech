@@ -210,24 +210,43 @@ parameterx=0.430725381079;
 parametery=-0.00033063639818;
 for i=1:1:size(renovation_cells_waypaths,2)
     for j=1:1:size(renovation_cells_waypaths{i},2)
+        theta_z=renovation_cells_mobilebase_positions{i}(j,6);
+        deltax=parameterx*cos(theta_z)-parametery*sin(theta_z);
+        deltay=parameterx*sin(theta_z)+parametery*cos(theta_z);
+        
+        renovation_cells_manipulatorbase_positions{i}(j,1)=renovation_cells_mobilebase_positions{i}(j,1)+deltax;
+        renovation_cells_manipulatorbase_positions{i}(j,2)=renovation_cells_mobilebase_positions{i}(j,2)+deltay;
+        renovation_cells_manipulatorbase_positions{i}(j,3)=1.3;
+        renovation_cells_manipulatorbase_positions{i}(j,4)=0;
+        renovation_cells_manipulatorbase_positions{i}(j,5)=0;
+        renovation_cells_manipulatorbase_positions{i}(j,6)=theta_z;
+        
         for k=1:1:size(renovation_cells_waypaths{i}{j},1)
-            waypoint1=renovation_cells_waypaths{i}{j}(k,1:3);
-            waypoint2=renovation_cells_waypaths{i}{j}(k,4:6);
-            
-            theta_z=renovation_cells_mobilebase_positions{i}(j,6);
-            deltax=parameterx*cos(theta_z)-parametery*sin(theta_z);
-            deltay=parameterx*sin(theta_z)+parametery*cos(theta_z);
-            
-            renovation_cells_manipulatorbase_positions{i}(j,1)=renovation_cells_mobilebase_positions{i}(j,1)+deltax;
-            renovation_cells_manipulatorbase_positions{i}(j,2)=renovation_cells_mobilebase_positions{i}(j,2)+deltay;
-            renovation_cells_manipulatorbase_positions{i}(j,3)=1.3;
-            renovation_cells_manipulatorbase_positions{i}(j,4)=0;
-            renovation_cells_manipulatorbase_positions{i}(j,5)=0;
-            renovation_cells_manipulatorbase_positions{i}(j,6)=theta_z;
+            delta_waypoint1=renovation_cells_waypaths{i}{j}(k,1:3)-renovation_cells_manipulatorbase_positions{i}(j,1:3);
+            delta_waypoint2=renovation_cells_waypaths{i}{j}(k,4:6)-renovation_cells_manipulatorbase_positions{i}(j,1:3);
+            list1=rotz(theta_z)'*delta_waypoint1';
+            renovation_cells_waypaths1{i}{j}(k,1:3)=list1';
+            list2=rotz(theta_z)'*delta_waypoint2';
+            renovation_cells_waypaths1{i}{j}(k,4:6)=list2';
         end
     end
 end
 
+
+figure;
+for i=1:1:1
+    for j=1:1:1
+        for m=1:1:size(renovation_cells_waypaths1{i}{j},1)-1
+            xlist=[renovation_cells_waypaths1{i}{j}(m,1),renovation_cells_waypaths1{i}{j}(m,4)];
+            ylist=[renovation_cells_waypaths1{i}{j}(m,2),renovation_cells_waypaths1{i}{j}(m,5)];
+            zlist=[renovation_cells_waypaths1{i}{j}(m,3),renovation_cells_waypaths1{i}{j}(m,6)];
+            plot3(xlist,ylist,zlist,'b','LineWidth',1);
+            hold on;
+        end
+        axis equal;
+    end
+end
+       
 
 save('second_scan_data/second_scan_data3.mat','renovation_cells_waypaths','renovation_cells_mobilebase_positions','renovation_waypaths_orientation');
 

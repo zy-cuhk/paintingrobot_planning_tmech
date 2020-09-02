@@ -122,7 +122,7 @@ def schedule_renovationstrokes(renovation_strokes_dict):
     scheduled_strokes_dict=defaultdict(defaultdict)
     for i in range(strokes_num):
         stroke_index=int(solution1[2*i]/2)
-        if int(solution1[i]%2)==0:
+        if int(solution1[2*i]%2)==0:
             for j in range(len(renovation_strokes_dict[stroke_index])):
                 scheduled_strokes_dict[i][j]=renovation_strokes_dict[stroke_index][j]        
         else:
@@ -131,44 +131,91 @@ def schedule_renovationstrokes(renovation_strokes_dict):
                 scheduled_strokes_dict[i][j]=[list1[3],list1[4],list1[5],list1[0],list1[1],list1[2]]
     return solution1, scheduled_strokes_dict
 
+def manipulator_catersian_path_tspsolver(unconnected_waypaths):
+    renovation_strokes_dict=defaultdict(defaultdict)
+    strokes_index=0
+
+    while(1):
+        connected_waypaths, unconnected_waypaths=connect_waypaths(unconnected_waypaths)
+        for i in range(len(connected_waypaths)):
+            renovation_strokes_dict[strokes_index][i]=connected_waypaths[i][0:6]
+        strokes_index+=1
+        if len(unconnected_waypaths)==0:
+            break
+    
+    renovation_strokes_dict1=defaultdict(defaultdict)
+    for i in range(len(renovation_strokes_dict)):
+        for j in range(len(renovation_strokes_dict[i])):
+            if i==4:
+                renovation_strokes_dict1[0][j]=renovation_strokes_dict[i][j]
+            if i==5:
+                renovation_strokes_dict1[1][j]=renovation_strokes_dict[i][j]
+            if i==6:
+                renovation_strokes_dict1[2][j]=renovation_strokes_dict[i][j]
+    solution, scheduled_strokes_dict=schedule_renovationstrokes(renovation_strokes_dict)
+    # print("the solution is: ",solution)
+    return scheduled_strokes_dict
 
 
-mat_path="/home/zy/catkin_ws/src/paintingrobot_related/paintingrobot_underusing/paintingrobot_planning_tmech/matlab/second_scan_data/second_scan_data3.mat"
-data = io.loadmat(mat_path)
-renovation_cells_waypaths=data['renovation_cells_waypaths']    
-unconnected_waypaths=renovation_cells_waypaths[0][0][0][0].tolist()
-# print("unconnected_waypaths is:",unconnected_waypaths[0][0:6])
-renovation_strokes_dict=defaultdict(defaultdict)
 
-time1=time.time()
-strokes_index=0
-while(1):
-    connected_waypaths, unconnected_waypaths=connect_waypaths(unconnected_waypaths)
-    for i in range(len(connected_waypaths)):
-        renovation_strokes_dict[strokes_index][i]=connected_waypaths[i][0:6]
-    # print("len(connected_waypaths) is:",len(connected_waypaths))
-    # print("the starting and ending points are:",renovation_strokes_dict[strokes_index][0])#,renovation_strokes_dict[strokes_index][])
-    strokes_index+=1
-    if len(unconnected_waypaths)==0:
-        break    
+if __name__ == "__main__":
+    mat_path="/home/zy/catkin_ws/src/paintingrobot_related/paintingrobot_underusing/paintingrobot_planning_tmech/matlab/second_scan_data/second_scan_data3.mat"
+    data = io.loadmat(mat_path)
+    renovation_cells_waypaths=data['renovation_cells_waypaths']    
+    unconnected_waypaths=renovation_cells_waypaths[0][0][0][0].tolist()
+    scheduled_strokes_dict=manipulator_catersian_path_tspsolver(unconnected_waypaths)
 
-for i in range(len(renovation_strokes_dict)):
-    # if i==1:
-        # print(renovation_strokes_dict[i])
-        # print("len(renovation_strokes_dict[i]",len(renovation_strokes_dict[i]))
-    print("the starting point is: ", renovation_strokes_dict[i][0][2])
-    print("the ending point is: ", renovation_strokes_dict[i][len(renovation_strokes_dict[i])-1][5])
-    print("*************************************************************")
 
-solution, scheduled_strokes_dict=schedule_renovationstrokes(renovation_strokes_dict)
-print("solution is:",solution)
-for i in range(len(scheduled_strokes_dict)):
-    # if i==1:
-        # print(scheduled_strokes_dict[i])
-        # print("len(scheduled_strokes_dict[i]) is:",len(scheduled_strokes_dict[i]))
-    print("the starting point is: ", scheduled_strokes_dict[i][0][2])
-    print("the ending point is: ", scheduled_strokes_dict[i][len(scheduled_strokes_dict[i])-1][5])
-    print("------------------------------------------------------------")
+    selected_waypoints_list=[]
+    manipulator_strokes_number=0
+    for i in range(len(scheduled_strokes_dict)):
+        for j in range(len(scheduled_strokes_dict[i])):
+            manipulator_strokes_number+=1
+            selected_waypoints_list.append(scheduled_strokes_dict[i][j][0:3])
+            if j==len(scheduled_strokes_dict[i])-1:
+                selected_waypoints_list.append(scheduled_strokes_dict[i][j][3:6])
+    io.savemat('/home/zy/catkin_ws/src/paintingrobot_related/paintingrobot_underusing/paintingrobot_planning_tmech/scripts/data1.mat',{'selected_waypoints_list':selected_waypoints_list})  
 
-time2=time.time()
-print("delta time is:",time2-time1)
+
+
+
+    # print("manipulator paths number is: ", len(scheduled_strokes_dict))
+    # manipulator_strokes_number=0
+    # for i in range(len(scheduled_strokes_dict)):
+    #     for j in range(len(scheduled_strokes_dict[i])):
+    #         print(scheduled_strokes_dict[i][j])
+    #         manipulator_strokes_number+=1
+    # print("manipulator strokes number is: ",manipulator_strokes_number)
+
+    # print("unconnected_waypaths is:",unconnected_waypaths[0][0:6])
+    # renovation_strokes_dict=defaultdict(defaultdict)
+    # time1=time.time()
+    # strokes_index=0
+    # while(1):
+    #     connected_waypaths, unconnected_waypaths=connect_waypaths(unconnected_waypaths)
+    #     for i in range(len(connected_waypaths)):
+    #         renovation_strokes_dict[strokes_index][i]=connected_waypaths[i][0:6]
+    #     print("len(connected_waypaths) is:",len(connected_waypaths))
+    #     print("the starting and ending points are:",renovation_strokes_dict[strokes_index][0])#,renovation_strokes_dict[strokes_index][])
+    #     strokes_index+=1
+    #     if len(unconnected_waypaths)==0:
+    #         break    
+    # for i in range(len(renovation_strokes_dict)):
+    #     if i==1:
+    #         print(renovation_strokes_dict[i])
+    #         print("len(renovation_strokes_dict[i]",len(renovation_strokes_dict[i]))
+    #     print("the starting point is: ", renovation_strokes_dict[i][0][2])
+    #     print("the ending point is: ", renovation_strokes_dict[i][len(renovation_strokes_dict[i])-1][5])
+    #     print("*************************************************************")
+
+    # solution, scheduled_strokes_dict=schedule_renovationstrokes(renovation_strokes_dict)
+    # print("solution is:",solution)
+    # for i in range(len(scheduled_strokes_dict)):
+    #     if i==1:
+    #         print(scheduled_strokes_dict[i])
+    #         print("len(scheduled_strokes_dict[i]) is:",len(scheduled_strokes_dict[i]))
+    #     print("the starting point is: ", scheduled_strokes_dict[i][0][2])
+    #     print("the ending point is: ", scheduled_strokes_dict[i][len(scheduled_strokes_dict[i])-1][5])
+    #     print("------------------------------------------------------------")
+    # time2=time.time()
+    # print("delta time is:",time2-time1)
